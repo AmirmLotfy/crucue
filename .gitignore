@@ -1,0 +1,59 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+*.iml
+*.log
+*.class
+
+# Android
+android/.gradle/
+android/local.properties
+android/app/google-services.json
+android/app/src/*/GeneratedPluginRegistrant.java
+android/key.properties
+*.keystore
+*.jks
+
+# iOS
+ios/Flutter/.last_build_id
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Flutter/app.flx
+ios/Flutter/app.zip
+ios/Flutter/flutter_assets/
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
+ios/Runner/GoogleService-Info.plist
+
+# Env / Secrets
+.env
+.env.local
+*.env
+
+# Build outputs
+functions/lib/
+functions/node_modules/
+backend/ai-gateway/dist/
+backend/ai-gateway/node_modules/
+
+# Dart generated
+*.freezed.dart
+*.g.dart
+
+# Coverage
+coverage/
+lcov.info
+
+# VS Code
+.vscode/settings.json
+
+# macOS
+.DS_Store

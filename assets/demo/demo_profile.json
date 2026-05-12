@@ -1,0 +1,28 @@
+{
+  "name": "Mom",
+  "relationship": "parent",
+  "ageGroup": "75–85",
+  "supportFocus": "Daily living and memory support — early-stage dementia with increasing confusion in the evenings",
+  "communicationPreferences": "Short, calm sentences. Avoid correcting her on small things. Redirection works better than reasoning.",
+  "triggers": [
+    "Evening hours (sundowning)",
+    "Changes in routine",
+    "Loud noises or too many people",
+    "Feeling rushed or pressured"
+  ],
+  "calmingStrategies": [
+    "Familiar music from her youth (1960s)",
+    "A warm cup of chamomile tea",
+    "Short walk in the garden",
+    "Looking at old photo albums together"
+  ],
+  "routines": [
+    "Morning: breakfast at 8 AM, then a short walk",
+    "Medication at breakfast and dinner",
+    "5 PM: calming music before dinner to ease sundowning",
+    "9 PM: consistent bedtime routine"
+  ],
+  "healthNotes": "Early-stage Alzheimer's diagnosis (2024). On donepezil. Manages most ADLs independently with occasional reminders. GP reviews every 3 months.",
+  "whatHelps": "Validation over correction. Keeping her environment familiar and predictable. Gentle touch and eye contact. Playing music she knows.",
+  "whatToAvoid": "Arguing about what she remembers. Asking 'do you remember?' questions. Rushing her. Introducing too many changes at once."
+}
