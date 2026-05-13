@@ -7,11 +7,11 @@ All code tasks are done. The remaining steps below require your manual action.
 
 ## Remaining manual steps (in order)
 
-### 1. Firebase Console — App Check (5 min)
-1. Go to Firebase Console → `crucueapp` project → App Check
-2. Register **Play Integrity** as the Android provider
-3. The debug token path is already handled by `AndroidDebugProvider()` in `kDebugMode`
-4. No code changes needed — `lib/main.dart` already calls `AndroidPlayIntegrityProvider()` in release mode
+### 1. Firebase Console — App Check (optional for hackathon APK)
+
+The app initializes App Check providers in `lib/main.dart`, but **Cloud Functions in this repo use `enforceAppCheck: false`** so a **sideloaded release APK** can call AI without Play Integrity attestation. That is intentional for the hackathon demo; it is **not** maximum abuse resistance.
+
+**To harden later:** (1) Register **Play Integrity** in Firebase Console → App Check for the Android app. (2) Flip **`enforceAppCheck` to `true`** on each callable in `functions/src/ai/*.ts` and `functions/src/messaging/send-test-push.ts`, then redeploy functions.
 
 ### 2. Deploy the Crucue-web site (2 min)
 The web project at `/Users/frameless/Desktop/All/Projects/Crucue-web` has:
@@ -70,13 +70,13 @@ git commit -m "feat: embed hackathon demo video"
 git push
 ```
 
-### 6. Make the GitHub repo public
-Ensure the GitHub repo at https://github.com/frameless-studio/crucue is set to **Public** (or create a new public repo with the code if currently private).
+### 6. GitHub repo
+Public repo: **https://github.com/AmirmLotfy/crucue** — use that URL on Kaggle.
 
 ### 7. Submit on Kaggle
 1. Go to https://www.kaggle.com/competitions/gemma-4-good-hackathon
 2. Click Submit → Writeup submission
-3. **Paste from:** `docs/kaggle_writeup_final.md` (1,357 words — under the 1,500 limit)
+3. **Paste from:** `docs/kaggle_writeup_final.md` (run `wc -w` on that file before submit — must stay under the competition word limit, typically 1,500)
 4. **Track:** Main Track (also tick Health & Sciences and Safety & Trust)
 5. **Video URL:** Your YouTube URL
 6. **Demo URL:** `https://www.crucue.com/hackathon`
@@ -91,7 +91,7 @@ Ensure the GitHub repo at https://github.com/frameless-studio/crucue is set to *
 | Task | Status | Notes |
 |------|--------|-------|
 | Gemma 4 model IDs verified | ✅ | `gemma-4-26b-a4b-it` is the correct ID |
-| Stub engines removed/roadmapped | ✅ | android/ios on-device engines moved to _roadmap |
+| Hybrid weekly on-device path | ✅ | `HybridGemmaEngine` + `flutter_gemma` when weights present |
 | App URLs updated to crucue.com | ✅ | Privacy/Terms URLs updated in env_config.dart |
 | On-device model downloader UI | ✅ | Settings → AI Engine → On-device section |
 | Android upload keystore generated | ✅ | `android/crucue-upload-key.jks` (gitignored) |
@@ -99,12 +99,12 @@ Ensure the GitHub repo at https://github.com/frameless-studio/crucue is set to *
 | Signed APK built | ✅ | `app-armeabi-v7a-release.apk` (34 MB) |
 | APK hosted on Vercel | ✅ | `public/downloads/crucue.apk` |
 | App Check code | ✅ | Uses `AndroidPlayIntegrityProvider()` in release |
-| `/hackathon` route live | ✅ | Needs Vercel deploy |
+| `/hackathon` route in repo | ✅ | Confirm https://www.crucue.com/hackathon after your last Vercel deploy |
 | vercel.json CSP updated | ✅ | YouTube frame-src + APK download header |
 | Demo profile seed (debug) | ✅ | Settings → Demo → Load demo profile |
 | flutter analyze clean | ✅ | No issues found |
 | Video storyboard written | ✅ | `docs/hackathon_video_script.md` |
-| Kaggle writeup final | ✅ | `docs/kaggle_writeup_final.md` (1,357 words) |
+| Kaggle writeup final | ✅ | `docs/kaggle_writeup_final.md` (verify word count before submit) |
 | Cover image (1200×800 PNG) | ✅ | `docs/kaggle_cover.png` |
 
 ---
@@ -113,4 +113,4 @@ Ensure the GitHub repo at https://github.com/frameless-studio/crucue is set to *
 
 - **Video:** [record and upload — paste URL here]
 - **Demo:** `https://www.crucue.com/hackathon`
-- **Code:** `https://github.com/frameless-studio/crucue`
+- **Code:** `https://github.com/AmirmLotfy/crucue`

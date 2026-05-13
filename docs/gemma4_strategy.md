@@ -8,7 +8,7 @@ Crucue uses Gemma 4 as its primary AI model family for three reasons:
 
 2. **Privacy-aligned on-device path.** Gemma 4's E2B and E4B edge variants (2B and 4B parameters) are designed for on-device inference via LiteRT-LM and Android AICore. This aligns with Crucue's core privacy promise: care data doesn't need to leave the device.
 
-3. **Structured output support.** Gemma 4 via Google AI Studio API supports `responseMimeType: "application/json"` with an explicit `responseJsonSchema`. Every Crucue AI operation returns validated JSON — not parsed text.
+3. **Structured output support.** Gemma 4 via the Gemini API supports `responseMimeType: "application/json"` with `responseJsonSchema`. Crucue uses that for **plans, voice extraction, weekly cloud summaries, and routine suggestions**. **Grounded chat** uses the same model but returns **plain text** (see *Grounded chat* below). **`transcribeShortClip`** does not call Gemma (Speech-to-Text only). Optional **on-device weekly** summaries use `flutter_gemma` with **prompted JSON** parsed in Dart.
 
 ---
 
@@ -57,8 +57,9 @@ Shared sampling constants live in [`functions/src/ai/genai-sampling.ts`](../func
 |----|------|--------|----------|--------|
 | `gemma-4-26b-a4b-it` | Remote (default) | 26B MoE (~4B activated per call) | Production default — all features | **Active** |
 | `gemma-4-31b-it` | Remote (premium) | 31B dense | Optional: set `GEMMA4_MODEL` secret to evaluate quality/latency vs 26B | **Opt-in** (same code path as default) |
-| `gemma-4-e2b-it` | On-device (fast) | 2B | Fast on-device, mid-range devices | Native channel ready, weights pending |
-| `gemma-4-e4b-it` | On-device (quality) | 4B | Quality on-device, flagship devices | Native channel ready, weights pending |
+| `gemma-4-e2b-it` | On-device (fast) | 2B | Optional weights via **flutter_gemma** (weekly insight path) | **User-downloaded weights** |
+| `gemma-4-e4b-it` | On-device (quality) | 4B | Same stack, larger weights | **Planned** |
+| Native LiteRT / AICore | Platform bridge | — | Future full on-device loop | **MethodChannel scaffold only** (not wired as primary engine) |
 
 ---
 

@@ -12,7 +12,19 @@ Crucue is a private B2C mobile app for caregivers: parents supporting children t
 
 When a difficult moment happens, the caregiver logs it — by voice or text — and receives a calm, structured AI-generated support plan. Plans are grounded in the specific profile of the person being cared for, the type of challenge, and previous reflections. Follow-up chat is grounded in the plan context, not generic. Routines that work get saved. Weekly insights surface what is helping over time.
 
-Everything is private. Nothing is shared. The app is designed to feel calm, trustworthy, and practically useful — not like a demo glued to a language model.
+Data is **owner-scoped** in your Firebase project (other users cannot read it via client APIs). **Inference** still sends prompts to **Google’s cloud APIs** (Gemini / Speech-to-Text) when you use those features — see **Privacy and safety** below. The app is designed to feel calm and practically useful, not like a generic chatbot bolt-on.
+
+---
+
+## Gemma 4 Good Hackathon (submission facts)
+
+| Item | URL / detail |
+|------|----------------|
+| Competition | [Gemma 4 Good Hackathon](https://www.kaggle.com/competitions/gemma-4-good-hackathon) |
+| Kaggle writeup (paste) | [`docs/kaggle_writeup_final.md`](docs/kaggle_writeup_final.md) — confirm word count vs current Kaggle limit before submit |
+| Live demo + APK | [crucue.com/hackathon](https://www.crucue.com/hackathon) · [APK direct](https://www.crucue.com/downloads/crucue.apk) |
+| Public code | [github.com/AmirmLotfy/crucue](https://github.com/AmirmLotfy/crucue) |
+| Cover image | [`docs/kaggle_cover.png`](docs/kaggle_cover.png) |
 
 ---
 
@@ -39,7 +51,7 @@ Weekly AI insights surface patterns over time
 
 | Feature | Status |
 |---------|--------|
-| Care profile creation (9 relationship types) | ✅ Implemented |
+| Care profile creation (5 `CareRelationship` values; 9 `PersonaPolicy` packs for AI tone) | ✅ Implemented |
 | Text incident logging → structured support plan | ✅ Implemented |
 | Voice incident logging → transcript → plan | ✅ Implemented |
 | Plan TTS playback (platform-native) | ✅ Implemented |
@@ -50,7 +62,8 @@ Weekly AI insights surface patterns over time
 | Weekly AI insights and pattern summary | ✅ Implemented |
 | Light and dark mode | ✅ Implemented |
 | AI engine mode selector (cloud / on-device / auto) | ✅ UI + logic; on-device requires model weights |
-| On-device inference (LiteRT-LM / AICore) | 🔧 Native channels scaffolded, model weights pending |
+| On-device weekly insight (`flutter_gemma` + optional weights) | ✅ Implemented (weekly summary path only) |
+| LiteRT-LM / AICore native bridge | 🔧 `MethodChannel` scaffold; not the active weekly path today |
 | Cloud Run AI Gateway | 🔧 Scaffolded, Vertex client pending |
 
 ---
@@ -66,8 +79,8 @@ Weekly AI insights surface patterns over time
 | Notifications | Firebase Cloud Messaging |
 | Analytics | Firebase Analytics (typed event helpers) |
 | Crash reporting | Firebase Crashlytics (full async coverage) |
-| AI — remote | Firebase Cloud Functions (Node.js 22) → `@google/genai` SDK → Gemma 4 (`gemma-4-26b-a4b-it`) |
-| AI — on-device | LiteRT-LM / Android AICore (scaffolded, pending weights) |
+| AI — remote | Cloud Functions (Node.js 22) → `@google/genai` → Gemma 4 on Gemini API (default `gemma-4-26b-a4b-it`; override via `GEMMA4_MODEL` secret) |
+| AI — on-device | `flutter_gemma` for optional **weekly** summaries when weights are installed; LiteRT/AICore channel is scaffold-only |
 | State management | Riverpod (consistent throughout) |
 | Navigation | `navigatorKey` + `navigateTo()` (GoRouter defined, cutover planned) |
 | Audio | `record` (capture) + `flutter_tts` (TTS) + `just_audio` (playback) |
@@ -117,7 +130,7 @@ Crucue uses **Gemma 4** as its primary AI model family.
 - **On-device fast**: `gemma-4-e2b-it` (2B, Android AICore / LiteRT-LM, pending)
 - **On-device quality**: `gemma-4-e4b-it` (4B, flagship devices, pending)
 
-All AI outputs use structured JSON schemas enforced via `config.responseJsonSchema` in the `@google/genai` SDK. No raw text is returned and parsed. See [`docs/gemma4_strategy.md`](docs/gemma4_strategy.md).
+**Structured JSON (`responseJsonSchema`):** `generateSupportPlan`, `processVoiceIncident` (extraction), `summarizePatterns`, `suggestRoutineFromReflection`. **`chatOnPlan`** returns **plain text** from Gemma with keyword safety checks before/after the call. **`transcribeShortClip`** is **Speech-to-Text only** (no Gemma). Optional on-device weekly summaries use **prompted JSON** parsed in Dart (`flutter_gemma`), not the Cloud `responseJsonSchema` path. See [`docs/gemma4_strategy.md`](docs/gemma4_strategy.md).
 
 ---
 
@@ -126,9 +139,10 @@ All AI outputs use structured JSON schemas enforced via `config.responseJsonSche
 - **Auth**: Email/password + Google Sign-In + Sign in with Apple
 - **Firestore**: All structured data. Paths are `users/{uid}/profiles/{id}/...`. Security rules enforce owner-only access.
 - **Storage**: Voice audio files (deleted after processing) + profile avatars
-- **Cloud Functions**: All AI inference (API keys never in the client)
-- **FCM**: Push notifications (infrastructure in place, targeted push pending)
-- **Analytics + Crashlytics**: Full event tracking and async error coverage
+- **Cloud Functions**: Gemma 4 + STT orchestration; **`GEMMA4_API_KEY`** / **`GEMMA4_MODEL`** in Secret Manager only (not in the app binary)
+- **Callable security**: Every function checks **`request.auth`**. **`enforceAppCheck: false`** in the current source so sideloaded release builds work without Play Integrity attestation — **set `enforceAppCheck: true`** once App Check + Play Integrity are configured for production.
+- **FCM**: `sendTestPushNotification` sends a test notification to the signed-in user’s registered device tokens
+- **Analytics + Crashlytics**: Typed events and async error reporting
 
 ---
 
@@ -139,7 +153,7 @@ crucue/
 ├── lib/
 │   ├── app/                  # Providers, constants
 │   ├── core/
-│   │   ├── ai/               # AiEngine interface + RemoteGemma4Engine + on-device stubs
+│   │   ├── ai/               # AiEngine, RemoteGemma4Engine, HybridGemmaEngine, flutter_gemma weekly path
 │   │   ├── audio/            # Recorder, TTS, playback services
 │   │   ├── config/           # FeatureFlags, EnvConfig
 │   │   ├── design/           # Shared UI components
@@ -159,7 +173,7 @@ crucue/
 │   │   └── persona_policies.dart
 │   └── views/                # Auth, home, chat, results, settings, legal
 ├── functions/                # Firebase Cloud Functions (TypeScript, Node.js 22, @google/genai)
-│   └── src/ai/               # 5 AI callable handlers + prompts + safety
+│   └── src/                  # 6 callables (5 Gemma + 1 STT-only) + messaging test push; prompts + safety
 ├── backend/
 │   └── ai-gateway/           # Cloud Run AI Gateway scaffold (Express/TypeScript)
 ├── android/                  # Android platform (com.crucue.app)
@@ -212,7 +226,7 @@ GEMMA4_API_KEY=your-gemma4-api-key-here
 GEMMA4_MODEL=gemma-4-26b-a4b-it
 ```
 
-**No Gemma 4 API key belongs in the Flutter app.** All AI calls are server-side.
+**No Gemma 4 API key belongs in the Flutter app.** Remote Gemma calls run in Cloud Functions; the optional **on-device weekly** path runs **locally** via `flutter_gemma` when weights are present (no `GEMMA4_API_KEY` on-device).
 
 ---
 
@@ -251,10 +265,10 @@ See [`docs/deployment_and_envs.md`](docs/deployment_and_envs.md) for the full de
 
 Crucue handles sensitive personal data about caregiving situations, family members, and medical context. The app is designed around strict privacy principles:
 
-- All Firestore data is owner-scoped — no cross-user access is possible via security rules
-- Voice recordings are processed server-side and deleted after transcription
-- AI inference uses your anonymized context — no care data is used for model training
-- On-device AI mode (when available) performs all inference locally, with no network calls during plan generation
+- All Firestore data is owner-scoped — no cross-user access via deployed security rules
+- Voice clips are transcribed in Cloud Functions; Storage objects are **deleted after STT** (best-effort in code)
+- Cloud inference sends **prompt content** to Google’s Gemini / Speech APIs under their standard API terms; this repo does **not** implement custom fine-tuning on your Firestore exports
+- **Weekly insights only** can run fully on-device with downloaded **`flutter_gemma`** weights; plans, chat, and voice extraction use **cloud** Gemma in this release
 - Crucue is **not** a licensed medical, therapeutic, or legal service
 
 See [`docs/privacy_and_safety.md`](docs/privacy_and_safety.md) for the full privacy and safety architecture.
@@ -270,12 +284,13 @@ See [`docs/privacy_and_safety.md`](docs/privacy_and_safety.md) for the full priv
 - ✅ App URLs updated to crucue.com
 
 **Next milestones:**
-- On-device AI: LiteRT-LM via Android AICore (MethodChannel scaffolded, model delivery pending)
-- Cloud Run AI Gateway: complete Vertex AI client and deploy
+- Re-enable **Firebase App Check** on callables (`enforceAppCheck: true`) after Play Integrity registration
+- LiteRT-LM / Android AICore via `MethodChannel` (scaffolded; model delivery pending)
+- Cloud Run AI Gateway: complete Vertex AI client and deploy (`backend/ai-gateway/`)
 - iOS FCM push capability and APNs setup
 - GoRouter navigation cutover
 - Google Play / App Store submission
-- Multilingual STT and UI (currently en-US only)
+- Multilingual STT and UI (Speech-to-Text + app copy are **`en-US`** today)
 
 See [`docs/submission_checklist.md`](docs/submission_checklist.md) for the full hackathon submission state.
 
@@ -296,6 +311,8 @@ See [`docs/submission_checklist.md`](docs/submission_checklist.md) for the full 
 | [`docs/privacy_and_safety.md`](docs/privacy_and_safety.md) | Privacy architecture and safety model |
 | [`docs/analytics_events.md`](docs/analytics_events.md) | Analytics event reference |
 | [`docs/hackathon_submission_notes.md`](docs/hackathon_submission_notes.md) | Hackathon demo notes |
+| [`docs/kaggle_writeup_final.md`](docs/kaggle_writeup_final.md) | Kaggle competition writeup (source of truth for submission text) |
+| [`docs/submission_checklist.md`](docs/submission_checklist.md) | URLs, video, and manual Kaggle steps |
 | [`docs/release_checklist.md`](docs/release_checklist.md) | Pre-release checklist |
 
 ---
@@ -304,4 +321,4 @@ See [`docs/submission_checklist.md`](docs/submission_checklist.md) for the full 
 
 Copyright © 2026 Crucue. All rights reserved.
 
-This repository is submitted as part of the **Gemma 4 Good Hackathon**. The code is not yet open-source. See the LICENSE file for terms.
+This repository is published for **Gemma 4 Good Hackathon** judging and transparency. There is **no separate open-source license file** yet; default copyright applies unless and until you add one (for example MIT or Apache-2.0).

@@ -1,101 +1,83 @@
-# Crucue — Private AI Support for the World's Caregivers, Grounded in Gemma 4
+# Crucue — Private AI Support for Caregivers, Grounded in Gemma 4
 
-> A Flutter mobile app that turns the hardest caregiving moments into structured support plans, grounded follow-up, and routines that stick — powered by Gemma 4 structured outputs, a live voice pipeline, and a full reflection loop.
+> Flutter + Firebase app that turns difficult caregiving moments into structured support plans, grounded follow-up chat, and routines — using **Gemma 4** on Google’s **Gemini Developer API** (`@google/genai`) for server-side inference, plus optional **flutter_gemma** for on-device weekly summaries when weights are installed. **Intended hackathon tracks:** Main; Impact — Health & Sciences; Safety & Trust (select whatever the Kaggle form allows for your submission).
 
 ---
 
 ## The problem
 
-There are an estimated 53 million unpaid caregivers in the United States alone. Parents of children with behavioral or developmental challenges. Adults caring for aging parents with dementia. Partners managing a spouse through chronic illness. Siblings coordinating care from a distance.
-
-When a difficult moment happens — a refusal to take medication, an unexpected behavioral episode, a conversation that went wrong — most caregivers face it alone, with no structure and no support. Generic AI chat tools can offer general advice. What caregivers need is something more specific: a tool that knows who they're caring for, what has happened before in this relationship, what strategies help this particular person, and can give them a plan they can actually use right now.
-
-This is intimate, private information. It must stay private. And it must be handled with care — because the caregiver is already exhausted, and the last thing they need is an AI tool that adds complexity instead of clarity.
+Millions of **unpaid family caregivers** juggle stress, logistics, and emotional load with little structured help in the moment. Generic assistants rarely stay anchored to **this person, this relationship, and what already worked**. Caregivers need calm, **actionable** guidance and a system that respects that the underlying facts are **private**.
 
 ---
 
-## The product
+## The product (what actually ships)
 
-Crucue is a deployed Flutter mobile app built around a simple caregiving support loop.
+Crucue is a **Firebase-backed Flutter app** (project **`crucueapp`**) built around one loop:
 
-**1. Log the moment (voice or text).** The caregiver describes what happened. A voice note is transcribed by Google Cloud Speech-to-Text, then Gemma 4 extracts structured incident fields — what happened, the possible trigger, what was already tried, and the desired outcome — via `responseJsonSchema`. No text parsing; typed fields from the first call.
+1. **Log the moment (voice or text).** Voice audio is uploaded to **Cloud Storage**, transcribed with the **Google Cloud Speech-to-Text** REST API (`en-US`), then **Gemma 4** fills **typed incident fields** using **`responseJsonSchema`**. The function **deletes the Storage object after processing** (best-effort; failures are logged). If Gemma extraction fails, a **heuristic fallback** still returns structured fields.
 
-**2. Get a structured plan.** Gemma 4 generates a support plan grounded in the specific care profile and incident. The output is a typed JSON object enforced at the model level: a calm summary, concrete steps for right now, what to avoid, a message draft for the loved one, follow-up tasks, a reflection prompt, and an escalation flag if safety resources are needed.
+2. **Structured support plan.** **Gemma 4** returns JSON matching **`SUPPORT_PLAN_SCHEMA`**: summary, what might be happening, what to do now, what to avoid, message draft, follow-up tasks, reflection prompt, escalation flag, safety note. The function merges **keyword-based safety checks** on user input and plan text (`applySafetyToResponse`); **the model is still invoked** so this path is not a full “block inference” gate.
 
-**3. Listen to the plan.** Platform TTS reads the plan aloud. No extra API or cost. Useful when a caregiver can't hold a screen during a difficult situation.
+3. **Listen.** **flutter_tts** reads the plan (platform TTS).
 
-**4. Grounded follow-up chat.** Chat with Crucue about the plan. Responses are anchored to the specific plan, care profile, and the last three check-ins — not generic chat. Voice input supported.
+4. **Follow-up chat.** **Gemma 4** returns **plain text** (no `responseJsonSchema` on this callable). **High-risk user messages** skip the model and return a fixed crisis-resources reply. **High-risk model output** is replaced with that same crisis reply. Last **three** check-ins (when present) are merged into the plan summary string for grounding.
 
-**5. Reflect and build routines.** After trying the plan, the caregiver logs what helped, rates the outcome, and saves effective strategies as reusable routines.
+5. **Reflect → routines.** Check-ins in Firestore; optional **AI routine suggestion** via **`suggestRoutineFromReflection`** (schema-enforced JSON). **High-risk reflection text blocks** the call before inference.
 
-**6. Weekly insights.** Gemma 4 analyzes the week's incidents, plans, and reflections into patterns and suggestions. Cloud by default; an optional on-device path uses a small Gemma model via `flutter_gemma` for this screen only, when weights are installed.
+6. **Weekly insights.** **`summarizePatterns`** uses **`responseJsonSchema`** (`INSIGHT_SCHEMA`). Alternatively, **`HybridGemmaEngine`** can run **`summarizeWeeklyWithFlutterGemma`**: a **prompted JSON shape** parsed in Dart — **not** the Cloud `responseJsonSchema` path — when **`FeatureFlags.localWeeklyInsightWithFlutterGemma`** is true and **`FlutterGemma.hasActiveModel()`** is true; otherwise it falls back to the remote callable.
 
-Nine care profile types (child with ADHD, aging parent with memory issues, partner with chronic illness, and more) shape every prompt, plan, and safety boundary. All care data is owner-scoped in Firestore. Voice recordings are deleted after processing.
-
----
-
-## How we used Gemma 4
-
-Every AI call in Crucue uses Gemma 4's `responseJsonSchema` via the `@google/genai` SDK — Google's current unified SDK. There are no `@ts-ignore` hacks and no JSON parsing fragility. The model receives a schema and returns a typed object. This is the foundation of the app's reliability.
-
-**1. Structured support plan generation.** The core call. Gemma 4 (`gemma-4-26b-a4b-it`, 26B MoE / 4B active parameters) receives the care profile, persona policy, incident fields, and recent reflections. The schema enforces six named output sections. The plan arrives shaped, not scraped. (See `functions/src/ai/generate-support-plan.ts`, `functions/src/ai/prompts.ts`)
-
-**2. Voice incident extraction.** A 90-second voice note from a caregiver is transcribed by Google Cloud Speech-to-Text and then sent to Gemma 4 with a schema that extracts `possible_trigger`, `what_user_already_tried`, and `desired_outcome` as named typed fields. These are stored in Firestore and used to inform future plans. (See `functions/src/ai/process-voice-incident.ts`)
-
-**3. Grounded chat.** The follow-up chat call sends the care profile, the full generated plan, and the last three check-in records as context with every message. Gemma 4 reasons over the specific situation. The schema includes a `crisis_detected` flag. (See `functions/src/ai/chat-on-plan.ts:114–121`)
-
-**4. Dual-layer safety pipeline.** A keyword-based crisis pre-check short-circuits the model call before it runs — no inference cost on clearly unsafe inputs. Post-generation, the schema's `escalation_flag` drives a UI safety banner with links to crisis resources. No unsafe output reaches the app. (See `functions/src/ai/safety.ts:7–39`)
-
-**5. Persona-policy prompt steering.** Nine care relationship types map to compact persona policies prepended to every prompt. These tune tone, suggestion style, safety thresholds, and message register — behavioral fine-tuning through structured prompting, not model training. (See `lib/shared/persona_policies.dart`)
-
-**6. Hybrid on-device weekly insight.** The `HybridGemmaEngine` routes the weekly insights call to `flutter_gemma` (Gemma 4 E2B, ~2.6 GB) when the user has downloaded weights and enabled hybrid mode. This is the only AI call that can run entirely on-device, with no network traffic. The full caregiving support loop — plan, chat, voice — stays on hosted Gemma 4 for quality and safety. (See `lib/core/ai/hybrid_gemma_engine.dart:79–95`)
+**Profiles:** Firestore **`CareRelationship`** enum has **five** values (child, parent, partner, sibling, familyMember). **Nine** distinct **`PersonaPolicy`** packs (child, teenager, baby, parent, partner, sibling, friend, pet, myself) tune prompts via `policyOverrides`.
 
 ---
 
-## Architecture
+## How we used Gemma 4 (precise)
 
-Flutter mobile app → Firebase Auth / Firestore / Storage / FCM → Firebase Cloud Functions (Node.js 22, `@google/genai` SDK) → Gemma 4 (`gemma-4-26b-a4b-it`).
+| Callable / path | Gemma? | Structured output |
+|-----------------|--------|---------------------|
+| `generateSupportPlan` | Yes | **`responseJsonSchema`** (`SUPPORT_PLAN_SCHEMA`) |
+| `processVoiceIncident` (extract step) | Yes | **`responseJsonSchema`** (`VOICE_INCIDENT_SCHEMA`) |
+| `summarizePatterns` | Yes | **`responseJsonSchema`** (`INSIGHT_SCHEMA`) |
+| `suggestRoutineFromReflection` | Yes | **`responseJsonSchema`** (`ROUTINE_SUGGESTION_SCHEMA`) |
+| `chatOnPlan` | Yes | **Free text** + safety filters |
+| `transcribeShortClip` | **No** | STT only (same file as voice pipeline) |
+| On-device weekly (`flutter_gemma`) | Yes (local runtime) | Prompt asks for JSON; **parsed in app code** |
 
-Side branch (weekly insights only): Flutter ↔ `flutter_gemma` (on-device, Gemma 4 E2B, opt-in after weight download).
+**Secrets:** `GEMMA4_API_KEY` and optional **`GEMMA4_MODEL`** (defaults to **`gemma-4-26b-a4b-it`** in code) are **Firebase Secrets**, not embedded in the APK.
 
-Five Cloud Functions deployed in the `crucueapp` Firebase project: `generateSupportPlan`, `chatOnPlan`, `summarizePatterns`, `processVoiceIncident`, `transcribeShortClip`. All callables require Firebase Auth and App Check. The Gemma 4 API key lives in Firebase Secret Manager — never in the mobile client.
-
-Full architecture diagram and code references: https://www.crucue.com/hackathon
-
----
-
-## Safety & Trust
-
-Crucue's safety design is a generalizable pattern for any app using Gemma 4 in sensitive contexts.
-
-**No API keys in the client.** All Gemma 4 calls run server-side in Cloud Functions. The `GEMMA4_API_KEY` lives in Firebase Secret Manager. Firebase Auth and App Check guard every callable.
-
-**Pre-call crisis short-circuit.** Before any model inference, a keyword scan checks the input. Detected crisis language halts the AI call and returns a direct resource response immediately. No generation cost, no model exposure to extreme content.
-
-**Schema-enforced safe outputs.** The `responseJsonSchema` in every callable means the model cannot return unstructured text. The `escalation_flag` field in the support plan schema drives a UI safety banner with crisis line links when true. The plan cannot omit the safety field — it is required by the schema.
-
-**No training on user data.** Care data is owner-scoped in Firestore. Voice recordings are deleted server-side after transcription. No user data is used to train or fine-tune the model.
-
-**On-device maximizes privacy.** When on-device mode is active for weekly insights, no data leaves the device for that AI call. The architecture is designed to extend this to the full caregiving loop as LiteRT-LM integration matures.
+**Auth / abuse surface (facts):** All callables require **`request.auth`**. **`enforceAppCheck` is `false`** on these functions in the current tree so a **sideloaded release APK** can call them without Play Integrity / App Check attestation setup — tighten this before a wide production launch.
 
 ---
 
-## What's next, honestly
+## Architecture (one paragraph)
 
-Native LiteRT-LM inference via Android AICore and Apple's on-device framework is on the roadmap. Platform `MethodChannel` bridges are scaffolded on both Android and iOS; model weight delivery via Play Asset Delivery or On-Demand Resources is the remaining step. When complete, the full caregiving loop — plans, chat, voice extraction — could run entirely on-device.
+**Flutter** → **Firebase Auth**, **Firestore**, **Storage**, **FCM** → **Cloud Functions** (Node.js 22, `@google/genai`) → **Gemma 4** on the Gemini API. **Seven** HTTPS callables are exported from **`functions/src/index.ts`**. **`sendTestPushNotification`** sends a test FCM notification to tokens under **`users/{uid}/devices/*`** (not a model call).
 
-The Vertex AI Cloud Run gateway is scaffolded in `backend/ai-gateway/` — authenticated REST endpoints, AJV-validated schemas, and persona routing — but the Vertex client is a placeholder. This enables a future migration from Google AI Studio to Vertex AI without changing the Flutter app.
+Demo page (APK, diagram, video slot): **https://www.crucue.com/hackathon**  
+Public code: **https://github.com/AmirmLotfy/crucue**
 
-Additional planned milestones: multilingual STT and UI (currently English-only), fine-tuning persona variants for clinical caregiver tone with Unsloth, and native function calling to replace the structured-prompt-to-JSON pattern.
+---
+
+## Safety & Trust (what the code does)
+
+- **Keyword regex gate** (`functions/src/ai/safety.ts`) on user/reflection text; **chat** and **routine suggestion** can **avoid** Gemma on high-risk input; **support plans** still generate then **override** flags/notes when input matched high risk.
+- **Schema-constrained** JSON for plans, extraction, weekly cloud summary, and routine suggestion — fewer “surprise shapes” than ad-hoc parsing for those endpoints.
+- **Owner-scoped Firestore / Storage rules** (ship in repo); voice audio deletion after STT as above.
+- **Not** a licensed medical, therapeutic, or legal service — reflected in product positioning.
+
+We do **not** operate a separate fine-tuning pipeline in this repo; “no training on user data” here means **we are not using your Firestore exports to train our own model weights** — while **inference** necessarily sends prompt content to **Google’s APIs** under their terms.
+
+---
+
+## What’s next (scoped, real)
+
+**`backend/ai-gateway/`** is an **undeployed** Express scaffold. **Native `MethodChannel` plugins** exist for a future **LiteRT-LM / AICore** path; **weekly insights** today use **flutter_gemma**, not those channels. Multilingual STT/UI (`en-US` today) and tool-calling are future work.
 
 ---
 
 ## Try it
 
-**Live demo page:** https://www.crucue.com/hackathon — hero, embedded video, APK download, architecture diagram, and full Gemma 4 code references.
-
-**Demo APK (Android 8+):** Download from the demo page. Enable "Install from unknown sources," install, grant microphone permission, and create a care profile to see the full Gemma 4 pipeline in action.
-
-**Source code:** https://github.com/frameless-studio/crucue — all Cloud Functions, Dart AI engine layer, safety pipeline, prompt schemas, and persona policies.
-
-**Video:** [linked from demo page] — 3-minute walkthrough of the full caregiving loop, ending with the on-device weekly insight running in airplane mode.
+- **Demo hub:** https://www.crucue.com/hackathon  
+- **APK:** linked there (Android). Install permissions as prompted; **microphone** for voice.  
+- **Repo:** https://github.com/AmirmLotfy/crucue  
+- **Video:** record a **public** ≤3 min demo; put the YouTube ID in the **`Crucue-web`** `/hackathon` page when ready.  
+- **Competition:** https://www.kaggle.com/competitions/gemma-4-good-hackathon — paste this writeup, attach URLs, upload cover art from **`docs/kaggle_cover.png`**, and confirm word count against the current Kaggle limit before submitting.
