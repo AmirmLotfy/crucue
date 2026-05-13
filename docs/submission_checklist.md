@@ -16,7 +16,7 @@ The app initializes App Check providers in `lib/main.dart`, but **Cloud Function
 ### 2. Deploy the Crucue-web site (2 min)
 The web project at `/Users/frameless/Desktop/All/Projects/Crucue-web` has:
 - New `/hackathon` route with hero, video embed, APK download, architecture diagram, Gemma 4 bullets
-- APK in `public/downloads/crucue.apk` (34 MB, SHA256: ec56578fd1fcdf1d488178a443e23ba820259344224cde6a73fcabc67dfe5b2a)
+- Demo Android APK is distributed via **GitHub Releases** (tag `android-hackathon-demo-2026`, asset `crucue-hackathon-arm64.apk`). The hackathon page uses `siteConfig.demoAndroidApkUrl` in Crucue-web (override with `VITE_DEMO_ANDROID_APK_URL`). **Do not** rely on `public/downloads/crucue.apk` on Vercel Hobby: a correct **arm64-v8a** build is ~175 MB and a **fat** APK is ~255 MB, both over Vercel Hobby’s **~100 MB total static upload** cap; the old **armeabi-v7a-only** split (~35 MB) fit Vercel but **fails on 64-bit-only phones** (e.g. Samsung Galaxy S25) with “App not installed.” Build arm64 with `flutter build apk --release --split-per-abi` and upload `app-arm64-v8a-release.apk` to the release. Verify: `unzip -l app-arm64-v8a-release.apk | rg 'lib/arm64-v8a/lib(flutter|app)\.so'`.
 - Updated `vercel.json` with YouTube `frame-src` and APK `Content-Disposition` headers
 - Updated `sitemap.xml` with `/hackathon`
 
@@ -30,7 +30,7 @@ git push
 
 Then verify:
 - https://www.crucue.com/hackathon loads
-- `/downloads/crucue.apk` downloads (not previews) in Chrome on Android
+- “Download demo APK” opens the GitHub Releases asset and the file installs on a **64-bit** Android phone (arm64)
 
 ### 3. Record the demo video (1–2 hrs)
 See full storyboard at `docs/hackathon_video_script.md`.
@@ -96,8 +96,8 @@ Public repo: **https://github.com/AmirmLotfy/crucue** — use that URL on Kaggle
 | On-device model downloader UI | ✅ | Settings → AI Engine → On-device section |
 | Android upload keystore generated | ✅ | `android/crucue-upload-key.jks` (gitignored) |
 | Release signing configured | ✅ | `android/key.properties` + `build.gradle` |
-| Signed APK built | ✅ | `app-armeabi-v7a-release.apk` (34 MB) |
-| APK hosted on Vercel | ✅ | `public/downloads/crucue.apk` |
+| Signed APK built | ✅ | **`app-arm64-v8a-release.apk`** from `flutter build apk --release --split-per-abi` (for modern phones); ship fat `app-release.apk` only if hosting allows ~255 MB |
+| APK hosted for judges | ✅ | **GitHub Releases** (`android-hackathon-demo-2026`); Crucue-web links via `demoAndroidApkUrl` — not Vercel `public/` on Hobby (upload size cap) |
 | App Check code | ✅ | Uses `AndroidPlayIntegrityProvider()` in release |
 | `/hackathon` route in repo | ✅ | Confirm https://www.crucue.com/hackathon after your last Vercel deploy |
 | vercel.json CSP updated | ✅ | YouTube frame-src + APK download header |

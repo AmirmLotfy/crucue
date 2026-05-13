@@ -1,6 +1,6 @@
 # Crucue
 
-> **Gemma 4 Good Hackathon submission** · [Live demo](https://www.crucue.com/hackathon) · [Download APK](https://www.crucue.com/downloads/crucue.apk)
+> **Gemma 4 Good Hackathon submission** · [Live demo](https://www.crucue.com/hackathon) · [Download APK (arm64, GitHub Releases)](https://github.com/AmirmLotfy/crucue/releases/download/android-hackathon-demo-2026/crucue-hackathon-arm64.apk)
 
 **Private AI support for caregivers.** Crucue helps people navigate the hardest everyday moments with a loved one — turning difficult situations into structured support plans, grounded follow-up, and actionable routines.
 
@@ -22,7 +22,7 @@ Data is **owner-scoped** in your Firebase project (other users cannot read it vi
 |------|----------------|
 | Competition | [Gemma 4 Good Hackathon](https://www.kaggle.com/competitions/gemma-4-good-hackathon) |
 | Kaggle writeup (paste) | [`docs/kaggle_writeup_final.md`](docs/kaggle_writeup_final.md) — confirm word count vs current Kaggle limit before submit |
-| Live demo + APK | [crucue.com/hackathon](https://www.crucue.com/hackathon) · [APK direct](https://www.crucue.com/downloads/crucue.apk) |
+| Live demo + APK | [crucue.com/hackathon](https://www.crucue.com/hackathon) · [APK on GitHub Releases (arm64)](https://github.com/AmirmLotfy/crucue/releases/download/android-hackathon-demo-2026/crucue-hackathon-arm64.apk) |
 | Public code | [github.com/AmirmLotfy/crucue](https://github.com/AmirmLotfy/crucue) |
 | Cover image | [`docs/kaggle_cover.png`](docs/kaggle_cover.png) |
 
