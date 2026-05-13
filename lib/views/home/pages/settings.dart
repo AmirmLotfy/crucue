@@ -17,6 +17,7 @@ import 'package:crucue/views/settings/profile.dart';
 import '../../../app/providers.dart';
 import '../../../core/ai/ai_engine_registry.dart';
 import '../../../core/ai/on_device_model_config.dart';
+import '../../../core/config/demo_access.dart';
 import '../../../core/config/env_config.dart';
 import '../../../core/config/feature_flags.dart';
 import '../../../core/services/firestore_service.dart';
@@ -116,9 +117,11 @@ class SettingsPage extends ConsumerWidget {
               onPress: () => navigateTo(const TermsScreen()),
             ),
 
-            // ─── Demo (debug only) ────────────────────────────────────
-            if (kDebugMode) ...[
-              _SectionHeader(title: 'Demo (debug only)'),
+            // ─── Demo profile seed (debug, or release with SHOW_DEMO_SEED) ─
+            if (showDemoProfileSeeding) ...[
+              _SectionHeader(
+                title: kDebugMode ? 'Demo (debug only)' : 'Demo (reviewer build)',
+              ),
               const _LoadDemoProfileButton(),
               const Divider(),
               SizedBox(height: 16.h),

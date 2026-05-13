@@ -16,7 +16,7 @@ The app initializes App Check providers in `lib/main.dart`, but **Cloud Function
 ### 2. Deploy the Crucue-web site (2 min)
 The web project at `/Users/frameless/Desktop/All/Projects/Crucue-web` has:
 - New `/hackathon` route with hero, video embed, APK download, architecture diagram, Gemma 4 bullets
-- Demo Android APK is distributed via **GitHub Releases** (tag `android-hackathon-demo-2026`, asset `crucue-hackathon-arm64.apk`). The hackathon page uses `siteConfig.demoAndroidApkUrl` in Crucue-web (override with `VITE_DEMO_ANDROID_APK_URL`). **Do not** rely on `public/downloads/crucue.apk` on Vercel Hobby: a correct **arm64-v8a** build is ~175 MB and a **fat** APK is ~255 MB, both over Vercel Hobby’s **~100 MB total static upload** cap; the old **armeabi-v7a-only** split (~35 MB) fit Vercel but **fails on 64-bit-only phones** (e.g. Samsung Galaxy S25) with “App not installed.” Build arm64 with `flutter build apk --release --split-per-abi` and upload `app-arm64-v8a-release.apk` to the release. Verify: `unzip -l app-arm64-v8a-release.apk | rg 'lib/arm64-v8a/lib(flutter|app)\.so'`.
+- Demo Android APK is distributed via **GitHub Releases** (tag `android-hackathon-demo-2026`, asset `crucue-hackathon-arm64.apk`). The hackathon page uses `siteConfig.demoAndroidApkUrl` in Crucue-web (override with `VITE_DEMO_ANDROID_APK_URL`). **Do not** rely on `public/downloads/crucue.apk` on Vercel Hobby: a correct **arm64-v8a** build is ~175 MB and a **fat** APK is ~255 MB, both over Vercel Hobby’s **~100 MB total static upload** cap; the old **armeabi-v7a-only** split (~35 MB) fit Vercel but **fails on 64-bit-only phones** (e.g. Samsung Galaxy S25) with “App not installed.” Build arm64 with `flutter build apk --release --split-per-abi --dart-define=SHOW_DEMO_SEED=true` so judges get **Settings → Demo (reviewer build) → Load demo profile (Mom)** in the release APK, then upload `app-arm64-v8a-release.apk` to the release. Verify: `unzip -l app-arm64-v8a-release.apk | rg 'lib/arm64-v8a/lib(flutter|app)\.so'`.
 - Updated `vercel.json` with YouTube `frame-src` and APK `Content-Disposition` headers
 - Updated `sitemap.xml` with `/hackathon`
 
@@ -43,12 +43,14 @@ scrcpy --record crucue_demo.mp4
 ```
 
 Before recording:
-1. Build and install the **debug** APK (not the release APK — debug mode shows the "Load demo profile" button):
+1. Build and install a **debug** APK (Settings always shows demo seeding in debug), **or** a release APK with `--dart-define=SHOW_DEMO_SEED=true` (section title: “Demo (reviewer build)”):
    ```bash
    cd /Users/frameless/Desktop/All/Projects/Crucue
    flutter install
+   # or release with demo seed for video parity with hackathon APK:
+   # flutter build apk --release --split-per-abi --dart-define=SHOW_DEMO_SEED=true && flutter install
    ```
-2. Open the app → Settings → Demo (debug only) → "Load demo profile (Mom)"
+2. Open the app → Settings → Demo → "Load demo profile (Mom)"
 3. Pre-download flutter_gemma weights: Settings → AI Engine → On-device section → Download
 
 ### 4. Upload video to YouTube

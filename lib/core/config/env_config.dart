@@ -14,6 +14,9 @@ import 'package:flutter/foundation.dart';
 ///
 /// # Production (default)
 /// flutter build apk --release
+///
+/// # Hackathon / reviewer APK with Settings → "Load demo profile (Mom)"
+/// flutter build apk --release --dart-define=SHOW_DEMO_SEED=true --split-per-abi
 /// ```
 class EnvConfig {
   EnvConfig._();

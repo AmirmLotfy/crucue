@@ -172,6 +172,29 @@ class _RegisterViewState extends State<RegisterView> {
                   onPress: _register,
                   text: 'Create Account',
                 ),
+                SizedBox(height: 16.h),
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: Theme.of(context).dividerColor)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12.w),
+                      child: Text(
+                        'or',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: Theme.of(context).dividerColor)),
+                  ],
+                ),
+                SizedBox(height: 16.h),
+                AppButton(
+                  type: ButtonType.outlined,
+                  onPress: isLoading ? null : () => signInWithGoogle(context),
+                  text: 'Continue with Google',
+                ),
                 SizedBox(height: 8.h),
                 Text(
                   'Your data is private and encrypted.',

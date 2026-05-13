@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// Full Crucue wordmark from [assets/Logos/](orange on light backgrounds, white on dark).
+/// Full Crucue wordmark from [assets/Logos/](orange on light backgrounds, light mark on dark).
+/// Source exports live in [crucue-logos/] at repo root; copy into `assets/Logos/` when updating.
 /// Uses [BoxFit.contain] so the asset’s aspect ratio is never stretched.
 class CrucueBrandLogo extends StatelessWidget {
   const CrucueBrandLogo({
@@ -12,8 +13,8 @@ class CrucueBrandLogo extends StatelessWidget {
     this.alignment = Alignment.center,
   });
 
-  /// `true` → `crucue_logo_white.png` (for dark surfaces / dark mode).
-  /// `false` → `crucue_logo_orange.png` (for light surfaces / light mode).
+  /// `true` → `crucue_logo_white.png` (light mark for dark surfaces / dark mode).
+  /// `false` → `crucue_logo_orange.png` (coloured mark for light surfaces / light mode).
   final bool forDarkBackground;
 
   /// Cap width; height follows aspect ratio via [BoxFit.contain].
