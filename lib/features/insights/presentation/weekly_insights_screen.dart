@@ -133,7 +133,7 @@ class _GenerateCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onPrimary,
                   ),
                 ),
                 SizedBox(height: 4.h),
@@ -141,7 +141,7 @@ class _GenerateCard extends StatelessWidget {
                   'AI will summarize your logs, patterns, and what\'s working.',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: Colors.white.withValues(alpha: 0.85),
+                    color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.85),
                     height: 1.4,
                   ),
                 ),
@@ -152,7 +152,7 @@ class _GenerateCard extends StatelessWidget {
           ElevatedButton(
             onPressed: isGenerating ? null : onGenerate,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.surface,
               foregroundColor: AppTheme.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.r),
@@ -443,11 +443,13 @@ class _EmptyInsights extends StatelessWidget {
           SizedBox(height: 28.h),
           FilledButton.icon(
             icon: isGenerating
-                ? const SizedBox(
+                ? SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
+                      strokeWidth: 2,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
                   )
                 : const Icon(Icons.auto_awesome_rounded),
             onPressed: isGenerating ? null : onGenerate,

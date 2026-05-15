@@ -257,7 +257,9 @@ class _RecordingState extends StatelessWidget {
             ),
             child: Icon(
               isRecording ? Icons.mic_rounded : Icons.mic_off_rounded,
-              color: Colors.white,
+              color: isRecording
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.65),
               size: 36.sp,
             ),
           ),
@@ -556,7 +558,7 @@ class _CircleButton extends StatelessWidget {
             child: Icon(
               icon,
               color: filled
-                  ? Colors.white
+                  ? Theme.of(context).colorScheme.onPrimary
                   : onTap != null
                       ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
                       : Theme.of(context).dividerColor,

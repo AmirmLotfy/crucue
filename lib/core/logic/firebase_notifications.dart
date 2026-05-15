@@ -10,6 +10,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../firebase_options.dart';
 import '../services/fcm_token_service.dart';
+import '../theme.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -157,7 +158,7 @@ class GlobalNotification {
       icon: "ic_notify",
       // sound: UriAndroidNotificationSound("https://www${data.notification?.android?.sound ?? ""}"),
       colorized: true,
-      color: Colors.white,
+      color: CrucueTokens.brandPrimary,
       priority: Priority.high,
     );
     var notificationDetails = NotificationDetails(android: androidChannelSpecifics, iOS: iOSPlatformSpecifics);

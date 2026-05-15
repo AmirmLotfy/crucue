@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:crucue/core/design/app_image.dart';
 import 'package:crucue/core/logic/helper_methods.dart';
-import 'package:crucue/core/theme.dart';
 
 import '../../core/design/second_app_bar.dart';
 
@@ -121,9 +120,10 @@ class _HelpViewState extends State<HelpView> {
               Text(
                 "If you have any questions or concerns about this Data Privacy and Usage Policy, please contact us at:",
                 style: TextStyle(
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w400,
-                    color: CrucueTokens.textMutedLight),
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
               SizedBox(height: 8.h),
               GestureDetector(
@@ -142,14 +142,15 @@ class _HelpViewState extends State<HelpView> {
                         ),
                       ),
                       Expanded(
-                          child: Text(
-                        "support@crucue.app",
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w400,
-                          color: CrucueTokens.textMutedLight,
+                        child: Text(
+                          "support@crucue.app",
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                      )),
+                      ),
                     ],
                   ),
                 ),
@@ -190,7 +191,7 @@ class _HelpViewState extends State<HelpView> {
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -254,7 +255,7 @@ class _ItemState extends State<_Item> {
                     widget.model.list[index].answer,
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color: CrucueTokens.textMutedLight,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   )
                 ],

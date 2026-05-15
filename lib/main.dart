@@ -117,6 +117,24 @@ class CrucueApp extends ConsumerWidget {
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
           themeMode: themeMode,
+          builder: (context, child) {
+            final brightness = Theme.of(context).brightness;
+            final overlay = brightness == Brightness.dark
+                ? SystemUiOverlayStyle.light.copyWith(
+                    statusBarColor: Colors.transparent,
+                    systemNavigationBarColor: CrucueTokens.backgroundDark,
+                    systemNavigationBarIconBrightness: Brightness.light,
+                  )
+                : SystemUiOverlayStyle.dark.copyWith(
+                    statusBarColor: Colors.transparent,
+                    systemNavigationBarColor: CrucueTokens.backgroundLight,
+                    systemNavigationBarIconBrightness: Brightness.dark,
+                  );
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: overlay,
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
         );
       },
     );

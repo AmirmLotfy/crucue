@@ -202,11 +202,13 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
             FilledButton(
               onPressed: _isLoading ? null : _saveProfile,
               child: _isLoading
-                  ? const SizedBox(
+                  ? SizedBox(
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
+                        strokeWidth: 2,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
                     )
                   : const Text('Create Profile'),
             ),
@@ -290,7 +292,7 @@ class _RelationshipSelector extends StatelessWidget {
                 Icon(
                   r.materialIcon,
                   size: 16.sp,
-                  color: isSelected ? Colors.white : Theme.of(context).hintColor,
+                  color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).hintColor,
                 ),
                 SizedBox(width: 6.w),
                 Text(
@@ -298,7 +300,7 @@ class _RelationshipSelector extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
-                    color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
+                    color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],

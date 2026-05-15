@@ -5,7 +5,6 @@ import '../../../core/design/app_expansion_tile.dart';
 import '../../../core/design/app_input.dart';
 import '../../../core/logic/helper_methods.dart';
 import '../../../core/logic/input_validator.dart';
-import '../../../core/theme.dart';
 import '../../challenges.dart';
 import '../../select_persona.dart';
 import '../view.dart';
@@ -41,7 +40,7 @@ class _MyFriendSectionState extends State<MyFriendSection> {
           ),
           AppInput(
             prefix: "friend.svg",
-            prefixColor: CrucueTokens.textMutedLight,
+            prefixColor: Theme.of(context).colorScheme.onSurfaceVariant,
             label: "Friendship Duration",
             hint: "How long have you been friends?",
             keyboardType: TextInputType.number,

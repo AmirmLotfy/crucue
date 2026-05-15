@@ -230,7 +230,7 @@ class _AddIncidentScreenState extends State<AddIncidentScreen> {
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w500,
                         color: selected
-                            ? Colors.white
+                            ? Theme.of(context).colorScheme.onPrimary
                             : Theme.of(context).hintColor,
                       ),
                     ),
@@ -459,7 +459,9 @@ class _AddIncidentScreenState extends State<AddIncidentScreen> {
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
+                        strokeWidth: 2,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
                     )
                   : const Icon(Icons.auto_awesome_rounded, size: 18),
               onPressed: _isLoading ? null : _save,

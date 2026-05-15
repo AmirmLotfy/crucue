@@ -38,6 +38,9 @@ ios/Runner/GoogleService-Info.plist
 .env.local
 *.env
 
+# Distribution APK (GitHub Releases only — do not commit ~175MB binary)
+crucue-hackathon-arm64.apk
+
 # Build outputs
 functions/lib/
 functions/node_modules/

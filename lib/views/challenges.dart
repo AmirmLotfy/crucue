@@ -537,7 +537,9 @@ class _ChallengeCategory extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w500,
-                      color: selected ? Colors.white : Theme.of(context).hintColor,
+                      color: selected
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : Theme.of(context).hintColor,
                     ),
                   ),
                 ),

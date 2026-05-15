@@ -374,7 +374,7 @@ class _CheckInScreenState extends ConsumerState<CheckInScreen> {
                   ),
                 ),
                 activeColor: CrucueTokens.success,
-                checkColor: Colors.white,
+                checkColor: Theme.of(context).colorScheme.onPrimary,
                 contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
                 dense: true,
@@ -506,7 +506,7 @@ class _CheckInScreenState extends ConsumerState<CheckInScreen> {
             Container(
               padding: EdgeInsets.all(14.r),
               decoration: BoxDecoration(
-                color: CrucueTokens.planReflect,
+                color: context.decor.planReflect,
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Row(
@@ -585,11 +585,13 @@ class _CheckInScreenState extends ConsumerState<CheckInScreen> {
           FilledButton(
             onPressed: _isLoading ? null : _save,
             child: _isLoading
-                ? const SizedBox(
+                ? SizedBox(
                     height: 20,
                     width: 20,
                     child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
+                      strokeWidth: 2,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
                   )
                 : const Text('Save Reflection'),
           ),

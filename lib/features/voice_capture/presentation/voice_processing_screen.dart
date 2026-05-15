@@ -276,7 +276,7 @@ class _ProcessingStages extends StatelessWidget {
                       isDone ? Icons.check_rounded : icon,
                       size: 16.sp,
                       color: isDone
-                          ? Colors.white
+                          ? Theme.of(context).colorScheme.onPrimary
                           : isActive
                               ? CrucueTokens.brandPrimary
                               : Theme.of(context).hintColor,

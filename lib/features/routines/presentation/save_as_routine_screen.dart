@@ -216,7 +216,7 @@ class _SaveAsRoutineScreenState extends State<SaveAsRoutineScreen> {
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w500,
                         color: selected
-                            ? Colors.white
+                            ? Theme.of(context).colorScheme.onPrimary
                             : Theme.of(context).hintColor,
                       ),
                     ),
@@ -270,11 +270,13 @@ class _SaveAsRoutineScreenState extends State<SaveAsRoutineScreen> {
             FilledButton(
               onPressed: _isLoading ? null : _save,
               child: _isLoading
-                  ? const SizedBox(
+                  ? SizedBox(
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
+                        strokeWidth: 2,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
                     )
                   : const Text('Save Routine'),
             ),

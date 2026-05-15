@@ -251,7 +251,7 @@ class _ResultsViewState extends ConsumerState<ResultsView> {
           _PlanCard(
             icon: Icons.lightbulb_outline_rounded,
             title: "What's happening",
-            color: CrucueTokens.planWhatHappening,
+            color: context.decor.planWhatHappening,
             iconColor: CrucueTokens.warning,
             content: _TextContent(plan.whatMightBeHappening),
           ),
@@ -259,7 +259,7 @@ class _ResultsViewState extends ConsumerState<ResultsView> {
           _PlanCard(
             icon: Icons.check_circle_outline_rounded,
             title: 'What to do now',
-            color: CrucueTokens.planWhatToDo,
+            color: context.decor.planWhatToDo,
             iconColor: CrucueTokens.success,
             content: _ChecklistContent(plan.whatToDoNow),
           ),
@@ -268,7 +268,7 @@ class _ResultsViewState extends ConsumerState<ResultsView> {
             _PlanCard(
               icon: Icons.do_not_disturb_outlined,
               title: 'What to avoid',
-              color: CrucueTokens.planWhatToAvoid,
+              color: context.decor.planWhatToAvoid,
               iconColor: CrucueTokens.error,
               content: _ListContent(plan.whatToAvoid),
             ),
@@ -278,7 +278,7 @@ class _ResultsViewState extends ConsumerState<ResultsView> {
             _PlanCard(
               icon: Icons.chat_outlined,
               title: 'Something you could say',
-              color: CrucueTokens.planMessage,
+              color: context.decor.planMessage,
               iconColor: CrucueTokens.info,
               content: _QuoteContent(plan.messageDraft),
             ),
@@ -288,7 +288,7 @@ class _ResultsViewState extends ConsumerState<ResultsView> {
             _PlanCard(
               icon: Icons.task_alt_rounded,
               title: 'Follow-up steps',
-              color: CrucueTokens.planTasks,
+              color: context.decor.planTasks,
               iconColor: const Color(0xff7C3AED),
               content: _ChecklistContent(plan.followUpTasks),
             ),
@@ -298,7 +298,7 @@ class _ResultsViewState extends ConsumerState<ResultsView> {
             _PlanCard(
               icon: Icons.self_improvement_rounded,
               title: 'Reflect later',
-              color: CrucueTokens.planReflect,
+              color: context.decor.planReflect,
               iconColor: AppTheme.primary,
               content: _TextContent(plan.reflectionPrompt),
             ),
@@ -444,7 +444,7 @@ class _SafetyBanner extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 16.h),
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: CrucueTokens.warningSubtle,
+        color: context.decor.warningSubtle,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: CrucueTokens.warning),
       ),
@@ -541,7 +541,7 @@ class _QuoteContent extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
+        color: context.decor.quoteInset,
         borderRadius: BorderRadius.circular(8.r),
         border:
             Border(left: BorderSide(color: CrucueTokens.info, width: 3)),

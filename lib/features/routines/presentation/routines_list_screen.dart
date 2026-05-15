@@ -89,7 +89,7 @@ class RoutinesListScreen extends ConsumerWidget {
         onPressed: () =>
             navigateTo(SaveAsRoutineScreen(profileId: profileId)),
         backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         icon: const Icon(Icons.add_rounded),
         label: const Text('New Routine'),
       ),

@@ -107,7 +107,7 @@ class _ChatViewState extends ConsumerState<ChatView> {
               ),
               child: Icon(
                 Icons.favorite_rounded,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onPrimary,
                 size: 18.sp,
               ),
             ),
@@ -217,6 +217,11 @@ class _MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final shadowColor = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.06);
+
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -234,7 +239,7 @@ class _MessageBubble extends StatelessWidget {
           border: isUser ? null : Border.all(color: Theme.of(context).dividerColor),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: shadowColor,
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -244,7 +249,9 @@ class _MessageBubble extends StatelessWidget {
           text,
           style: TextStyle(
             fontSize: 14.sp,
-            color: isUser ? Colors.white : Theme.of(context).colorScheme.onSurface,
+            color: isUser
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.onSurface,
             height: 1.5,
           ),
         ),
@@ -512,7 +519,7 @@ class _InputBarState extends ConsumerState<_InputBar> {
                 ),
                 child: Icon(
                   Icons.send_rounded,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onPrimary,
                   size: 20.sp,
                 ),
               ),

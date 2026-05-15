@@ -49,8 +49,10 @@ enum MessageType { success, fail, warning }
 
 void showMessage(String msg, {int duration = 2, MessageType type = MessageType.fail}) async {
   if (msg.isNotEmpty) {
-    ScaffoldMessenger.of(navigatorKey.currentContext!).clearSnackBars();
-    ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+    final ctx = navigatorKey.currentContext!;
+    final cs = Theme.of(ctx).colorScheme;
+    ScaffoldMessenger.of(ctx).clearSnackBars();
+    ScaffoldMessenger.of(ctx).showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
         margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
@@ -79,7 +81,7 @@ void showMessage(String msg, {int duration = 2, MessageType type = MessageType.f
               height: 24.h,
               width: 24.h,
               padding: EdgeInsets.all(5.r),
-              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: cs.surface, shape: BoxShape.circle),
               child: AppImage(
                 getToastIcon(type),
                 height: 19.h,
@@ -100,15 +102,17 @@ Future<void> closePage(String message) async {
   DateTime now = DateTime.now();
   if (currentBackPressTime == null || now.difference(currentBackPressTime!) > const Duration(seconds: 2)) {
     currentBackPressTime = now;
-    ScaffoldMessenger.of(navigatorKey.currentContext!).clearSnackBars();
-    ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+    final ctx = navigatorKey.currentContext!;
+    final scheme = Theme.of(ctx).colorScheme;
+    ScaffoldMessenger.of(ctx).clearSnackBars();
+    ScaffoldMessenger.of(ctx).showSnackBar(
       SnackBar(
           elevation: 0,
           content: Text(
             message,
-            style: TextStyle(color: CrucueTokens.textPrimaryLight),
+            style: TextStyle(color: scheme.onSurface),
           ),
-          backgroundColor: CrucueTokens.borderLight,
+          backgroundColor: scheme.surfaceContainerHighest,
           behavior: SnackBarBehavior.floating),
     );
   } else {

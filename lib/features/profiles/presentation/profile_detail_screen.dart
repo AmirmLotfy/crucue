@@ -416,14 +416,14 @@ class _IncidentTile extends StatelessWidget {
               padding:
                   EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
               decoration: BoxDecoration(
-                color: incident.category.chipColor.withValues(alpha: 0.15),
+                color: incident.category.chipColor(context).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(4.r),
               ),
               child: Text(
                 incident.category.label,
                 style: TextStyle(
                   fontSize: 10.sp,
-                  color: incident.category.chipColor,
+                  color: incident.category.chipColor(context),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -589,7 +589,7 @@ class _RoutineTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: CrucueTokens.planReflect),
+        border: Border.all(color: context.decor.planReflect),
       ),
       child: Row(
         children: [
@@ -598,7 +598,7 @@ class _RoutineTile extends StatelessWidget {
             height: 36.h,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: CrucueTokens.planReflect,
+              color: context.decor.planReflect,
               shape: BoxShape.circle,
             ),
             child: Icon(Icons.repeat_rounded,
@@ -774,7 +774,7 @@ extension _CareRelationshipStyle on CareRelationship {
 }
 
 extension _IncidentCategoryStyle on IncidentCategory {
-  Color get chipColor {
+  Color chipColor(BuildContext context) {
     switch (this) {
       case IncidentCategory.behavior:
         return CrucueTokens.error;
@@ -789,7 +789,7 @@ extension _IncidentCategoryStyle on IncidentCategory {
       case IncidentCategory.safety:
         return AppTheme.warmCoral;
       case IncidentCategory.other:
-        return CrucueTokens.textMutedLight;
+        return Theme.of(context).colorScheme.onSurfaceVariant;
     }
   }
 }

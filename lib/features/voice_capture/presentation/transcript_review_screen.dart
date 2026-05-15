@@ -178,7 +178,7 @@ class _TranscriptReviewScreenState extends State<TranscriptReviewScreen> {
             Container(
               padding: EdgeInsets.all(14.r),
               decoration: BoxDecoration(
-                color: CrucueTokens.warningSubtle,
+                color: context.decor.warningSubtle,
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(color: CrucueTokens.warning),
               ),
@@ -280,7 +280,7 @@ class _TranscriptReviewScreenState extends State<TranscriptReviewScreen> {
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w500,
                       color: selected
-                          ? Colors.white
+                          ? cs.onPrimary
                           : cs.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
@@ -391,11 +391,13 @@ class _TranscriptReviewScreenState extends State<TranscriptReviewScreen> {
 
           FilledButton.icon(
             icon: _isSaving
-                ? const SizedBox(
+                ? SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
+                      strokeWidth: 2,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
                   )
                 : const Icon(Icons.auto_awesome_rounded, size: 18),
             onPressed: _isSaving ? null : _saveAndContinue,

@@ -30,7 +30,7 @@ class _HomeViewState extends State<HomeView> {
           ? FloatingActionButton(
               onPressed: () => navigateTo(const CreateProfileScreen()),
               backgroundColor: AppTheme.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
               elevation: 4,
               shape: const CircleBorder(),
               tooltip: 'New care profile',

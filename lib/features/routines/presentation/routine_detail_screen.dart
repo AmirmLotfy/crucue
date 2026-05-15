@@ -153,7 +153,7 @@ class _RoutineDetailScreenState extends ConsumerState<RoutineDetailScreen> {
                     padding: EdgeInsets.all(12.r),
                     decoration: BoxDecoration(
                       color: done
-                          ? CrucueTokens.successSubtle
+                          ? context.decor.successSubtle
                           : Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(10.r),
                       border: Border.all(
@@ -181,7 +181,8 @@ class _RoutineDetailScreenState extends ConsumerState<RoutineDetailScreen> {
                           ),
                           child: done
                               ? Icon(Icons.check_rounded,
-                                  size: 14.sp, color: Colors.white)
+                                  size: 14.sp,
+                                  color: Theme.of(context).colorScheme.onPrimary)
                               : Text(
                                   '${i + 1}',
                                   style: TextStyle(
@@ -237,11 +238,13 @@ class _RoutineDetailScreenState extends ConsumerState<RoutineDetailScreen> {
               ],
               FilledButton.icon(
                 icon: _isMarkingDone
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                          strokeWidth: 2,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                       )
                     : const Icon(Icons.check_circle_outline_rounded,
                         size: 18),

@@ -59,12 +59,18 @@ Defined in `lib/core/theme.dart`. All tokens are `static const`.
 
 ### Semantic
 
-| Token | Value |
-|-------|-------|
-| `success` / `successSubtle` | `#4CAF50` / `#E8F5E9` |
-| `warning` / `warningSubtle` | `#FF9800` / `#FFF3E0` |
-| `error` / `errorSubtle` | `#EF233C` / `#FCE4EC` |
-| `info` / `infoSubtle` | `#2196F3` / `#E3F2FD` |
+| Token | Value | Notes |
+|-------|-------|--------|
+| `success` / `successSubtle` | `#4CAF50` / `#E8F5E9` | Accent colors are shared; **pastel fills** for UI also exist as dark variants on [`CrucueDecorColors`](lib/core/theme.dart). |
+| `warning` / `warningSubtle` | `#FF9800` / `#FFF3E0` | Use `context.decor.warningSubtle` in widgets, not `CrucueTokens.warningSubtle`. |
+| `error` / `errorSubtle` | `#EF233C` / `#FCE4EC` | Same — `context.decor.errorSubtle`. |
+| `info` / `infoSubtle` | `#2196F3` / `#E3F2FD` | Same — `context.decor.infoSubtle`. |
+
+### Plan card tints (light definitions)
+
+| Token | Value | Widget usage |
+|-------|-------|----------------|
+| `planWhatHappening` … `planReflect` | pastels | **Do not** reference these in feature/view code for backgrounds. Use `context.decor.planWhatHappening` (etc.) so dark mode gets the matching dark tint. |
 
 ### Persona swatches
 
@@ -89,7 +95,7 @@ Each of 9 persona types has a card background color:
 `AppTheme` in `lib/core/theme.dart` provides:
 
 - `AppTheme.light` — full `ThemeData` for light mode
-- `AppTheme.dark` — full `ThemeData` for dark mode
+- `AppTheme.dark` — full `ThemeData` for dark mode (includes `ThemeExtension<CrucueDecorColors>`)
 - `AppTheme.primary` — brand color alias (`CrucueTokens.brandPrimary`)
 - `AppTheme.radius` / `AppTheme.radiusLarge` — shared border radii
 - `AppTheme.fontFamily` — `'Roboto'`
@@ -141,11 +147,48 @@ color: CrucueTokens.warning
 color: AppTheme.surface
 color: AppTheme.background
 color: AppTheme.textPrimary
+color: CrucueTokens.textMutedLight
+color: CrucueTokens.planWhatToDo
+color: CrucueTokens.warningSubtle
 
 // ❌ Raw hex in widget files
 color: Color(0xffF5F5F5)
 color: Color(0xff8C8C8C)
 ```
+
+### `Colors.white` / `Colors.black`
+
+Use **`Theme.of(context).colorScheme.onPrimary`** for icons and labels on **primary** (`AppTheme.primary` / `colorScheme.primary`) fills. Reserve `Colors.white` for **theme definitions** inside `lib/core/theme.dart` only (e.g. `onPrimary: Colors.white`). Message snackbars that sit on saturated semantic greens/blues may keep white body text for contrast.
+
+---
+
+## `CrucueDecorColors` (`ThemeExtension`)
+
+Registered on both `AppTheme.light` and `AppTheme.dark` in `lib/core/theme.dart`. Holds **mode-specific** fills:
+
+- Plan section backgrounds (`planWhatHappening`, `planWhatToDo`, …)
+- Semantic subtle banners (`successSubtle`, `warningSubtle`, …)
+- `quoteInset` — inset surface on tinted cards (e.g. quoted plan text)
+
+Access from widgets:
+
+```dart
+final d = context.decor;
+color: d.planReflect
+color: d.warningSubtle
+```
+
+---
+
+## Audit script
+
+Run from repo root:
+
+```bash
+./tool/audit_theme.sh
+```
+
+This greps `lib/` (excluding `lib/core/theme.dart`) for disallowed `CrucueTokens` light-only and pastel-surface patterns. Add `./tool/audit_theme.sh` to CI if desired.
 
 ---
 
@@ -164,11 +207,22 @@ Theme preference is stored in `SharedPreferences` via `CacheHelper.saveThemeMode
 
 ### App wiring (`lib/main.dart`)
 
+`MaterialApp.router` sets `theme`, `darkTheme`, and `themeMode`, and uses a `builder` that wraps the navigator in `AnnotatedRegion<SystemUiOverlayStyle>` so Android status / navigation bar icons track brightness.
+
 ```dart
-MaterialApp(
+MaterialApp.router(
   theme: AppTheme.light,
   darkTheme: AppTheme.dark,
   themeMode: ref.watch(themeModeProvider),
+  builder: (context, child) {
+    final overlay = Theme.of(context).brightness == Brightness.dark
+        ? SystemUiOverlayStyle.light.copyWith(...)
+        : SystemUiOverlayStyle.dark.copyWith(...);
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: overlay,
+      child: child ?? const SizedBox.shrink(),
+    );
+  },
 )
 ```
 
@@ -189,6 +243,10 @@ extension AppColors on BuildContext {
   Color get surface => Theme.of(this).colorScheme.surface;
   Color get onSurface => Theme.of(this).colorScheme.onSurface;
   Color get primaryColor => Theme.of(this).colorScheme.primary;
+
+  /// Plan tints, semantic subtles, quote inset — see CrucueDecorColors.
+  CrucueDecorColors get decor =>
+      Theme.of(this).extension<CrucueDecorColors>() ?? CrucueDecorColors.light;
 }
 ```
 
@@ -207,8 +265,9 @@ extension AppColors on BuildContext {
 
 When adding new screens or components:
 
-1. Use `Theme.of(context).colorScheme.*` for all color decisions
-2. Use `CrucueTokens.brandPrimary` for brand accents
-3. Use `CrucueTokens.success/warning/error/info` for semantic feedback
-4. Do not add new `Color(0xff...)` literals — map to existing tokens or add a named token in `CrucueTokens`
-5. Test in both light and dark mode before merging
+1. Use `Theme.of(context).colorScheme.*` for standard surfaces and typography roles
+2. Use **`context.decor`** for plan cards, warning/success subtle banners, and similar tinted surfaces
+3. Use `CrucueTokens.brandPrimary` (or `AppTheme.primary`) for brand accents
+4. Use `CrucueTokens.success/warning/error/info` for **semantic accents** (icons, borders), not for large pastel fills (use `context.decor` subtles)
+5. Do not add new `Color(0xff...)` literals — map to existing tokens, `ColorScheme`, or extend `CrucueDecorColors`
+6. Run `./tool/audit_theme.sh` and test light + dark (and system) before merging
