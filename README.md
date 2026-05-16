@@ -173,7 +173,7 @@ crucue/
 │   │   └── persona_policies.dart
 │   └── views/                # Auth, home, chat, results, settings, legal
 ├── functions/                # Firebase Cloud Functions (TypeScript, Node.js 22, @google/genai)
-│   └── src/                  # 6 callables (5 Gemma + 1 STT-only) + messaging test push; prompts + safety
+│   └── src/                  # 7 callables (5 Gemma + 1 STT-only + 1 messaging test push); prompts + safety
 ├── backend/
 │   └── ai-gateway/           # Cloud Run AI Gateway scaffold (Express/TypeScript)
 ├── android/                  # Android platform (com.crucue.app)
